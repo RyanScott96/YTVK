@@ -1,0 +1,11 @@
+# VSCode editor configs
+.vscode/
+
+# Binaries and folder
+bin/
+
+# C++ object files
+*.o
+
+# Compiled SPIR-V shaders
+shaders/*.spv
