@@ -3,7 +3,7 @@
 
 namespace YTVK{
     App::App(){
-        loadModels();
+        loadGameObjects();
         createPipelineLayout();
         recreateSwapchain();
         createCommandBuffers();
@@ -24,12 +24,18 @@ namespace YTVK{
     };
 
     void App::createPipelineLayout() {
+
+        VkPushConstantRange pushConstantRange{};
+        pushConstantRange.stageFlags = VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT;
+        pushConstantRange.offset = 0;
+        pushConstantRange.size = sizeof(SimplePushConstantData);
+
         VkPipelineLayoutCreateInfo pipelineLayoutInfo{};
         pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
         pipelineLayoutInfo.setLayoutCount = 0;
         pipelineLayoutInfo.pSetLayouts = nullptr;
-        pipelineLayoutInfo.pushConstantRangeCount = 0;
-        pipelineLayoutInfo.pPushConstantRanges = nullptr;
+        pipelineLayoutInfo.pushConstantRangeCount = 1;
+        pipelineLayoutInfo.pPushConstantRanges = &pushConstantRange;
 
         if (vkCreatePipelineLayout(
             device.device(),
@@ -92,7 +98,7 @@ namespace YTVK{
         renderPassInfo.renderArea.extent = swapchain->getSwapChainExtent();
 
         std::array<VkClearValue, 2> clearValues{};
-        clearValues[0].color = {0.1f, 0.1f, 0.1f, 1.0f};
+        clearValues[0].color = {0.01f, 0.01f, 0.01f, 1.0f};
         clearValues[1].depthStencil = {1.0f, 0};
 
         renderPassInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
@@ -113,9 +119,7 @@ namespace YTVK{
         vkCmdSetViewport(commandBuffers[imageIndex], 0, 1, &viewport);
         vkCmdSetScissor(commandBuffers[imageIndex], 0, 1, &scissor);
 
-        pipeline->bind(commandBuffers[imageIndex]);
-        model->bind(commandBuffers[imageIndex]);
-        model->draw(commandBuffers[imageIndex]);
+        renderGameObjects(commandBuffers[imageIndex]);
 
         vkCmdEndRenderPass(commandBuffers[imageIndex]);
         if (vkEndCommandBuffer(commandBuffers[imageIndex]) != VK_SUCCESS)
@@ -148,13 +152,22 @@ namespace YTVK{
         createPipeline();
     }
 
-    void App::loadModels() {
+    void App::loadGameObjects() {
         std::vector<Model::Vertex> vertices{};
         vertices = std::vector<Model::Vertex>{
             {{0.0f, -0.5f}, {1.0f, 0.0f, 0.0f}},
             {{0.5f, 0.5f}, {0.0f, 1.0f, 0.0f}},
             {{-0.5f, 0.5f}, {0.0f, 0.0f, 1.0f}}};
-        model = std::make_unique<Model>(device, vertices);
+        auto model = std::make_shared<Model>(device, vertices);
+
+        auto triangle = GameObject::createGameObject();
+        triangle.model = model;
+        triangle.color = {0.1f, 0.8f, 0.1f};
+        triangle.transform2D.translation.x = 0.2f;
+        triangle.transform2D.scale = {2.0f, 0.5f};
+        triangle.transform2D.rotation = 0.25f * glm::two_pi<float>();
+
+        gameObjects.push_back(std::move(triangle));
     }
 
     void App::drawFrame() {
@@ -183,4 +196,26 @@ namespace YTVK{
             throw std::runtime_error("failed to present swap chain image");
         }
     };
+
+    void App::renderGameObjects(VkCommandBuffer commandBuffer) {
+        pipeline->bind(commandBuffer);
+        for (auto& object : gameObjects) {
+            object.transform2D.rotation = glm::mod(object.transform2D.rotation + 0.001f, glm::two_pi<float>());
+
+            SimplePushConstantData push{};
+            push.offset = object.transform2D.translation;
+            push.color = object.color;
+            push.transform = object.transform2D.mat2();
+
+            vkCmdPushConstants(
+                commandBuffer,
+                pipelineLayout,
+                VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT,
+                0,
+                sizeof(SimplePushConstantData),
+                &push);
+            object.model->bind(commandBuffer);
+            object.model->draw(commandBuffer);
+        }
+    }
 }
