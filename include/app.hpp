@@ -1,7 +1,6 @@
 #pragma once
 
 #include "window.hpp"
-#include "pipeline.hpp"
 #include "device.hpp"
 #include "renderer.hpp"
 #include "game_object.hpp"
@@ -24,17 +23,11 @@ namespace YTVK {
         void run();
 
         private:
-        void createPipelineLayout();
-        void createPipeline();
         void loadGameObjects();
-        void renderGameObjects(VkCommandBuffer commandBuffer);
-
 
         Window window{WIDTH, HEIGHT, "Window!"};
         Device device{window};
         Renderer renderer{window, device};
-        std::unique_ptr<Pipeline> pipeline;
-        VkPipelineLayout pipelineLayout;
         std::vector<GameObject> gameObjects;
     };
 };
