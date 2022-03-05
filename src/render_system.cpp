@@ -67,7 +67,7 @@ namespace YTVK
             "shaders/simple.frag.spv");
     }
 
-    void RenderSystem::renderGameObjects(VkCommandBuffer commandBuffer, std::vector<GameObject> &gameObjects)
+    void RenderSystem::renderGameObjects(VkCommandBuffer commandBuffer, std::vector<GameObject> &gameObjects, const Camera &camera)
     {
         pipeline->bind(commandBuffer);
         for (auto &object : gameObjects)
@@ -77,7 +77,7 @@ namespace YTVK
 
             SimplePushConstantData push{};
             push.color = object.color;
-            push.transform = object.transform.mat4();
+            push.transform = camera.getProjection() * object.transform.mat4();
 
             vkCmdPushConstants(
                 commandBuffer,
