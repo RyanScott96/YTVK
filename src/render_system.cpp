@@ -70,6 +70,9 @@ namespace YTVK
     void RenderSystem::renderGameObjects(VkCommandBuffer commandBuffer, std::vector<GameObject> &gameObjects, const Camera &camera)
     {
         pipeline->bind(commandBuffer);
+
+        auto projectionView = camera.getProjection() * camera.getView();
+
         for (auto &object : gameObjects)
         {
             object.transform.rotation.y = glm::mod(object.transform.rotation.y + 0.001f, glm::two_pi<float>());
@@ -77,7 +80,7 @@ namespace YTVK
 
             SimplePushConstantData push{};
             push.color = object.color;
-            push.transform = camera.getProjection() * object.transform.mat4();
+            push.transform = projectionView * object.transform.mat4();
 
             vkCmdPushConstants(
                 commandBuffer,
