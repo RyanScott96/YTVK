@@ -56,7 +56,8 @@ namespace YTVK
             std::shared_ptr<SwapChain> oldSwapChain = std::move(swapchain);
             swapchain = std::make_unique<SwapChain>(device, extent, oldSwapChain);
 
-            if (!oldSwapChain->compareSwapFormats(*swapchain.get())) {
+            if (!oldSwapChain->compareSwapFormats(*swapchain.get()))
+            {
                 throw std::runtime_error("Swap chain image or depth format has changed");
             }
 
