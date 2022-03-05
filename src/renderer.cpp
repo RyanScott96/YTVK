@@ -4,7 +4,7 @@
 
 namespace YTVK
 {
-    Renderer::Renderer(Window &window, Device &device) : window{window}, device{device}, isFrameStarted{false}
+    Renderer::Renderer(Window &window, Device &device) : window{window}, device{device}, isFrameStarted{false}, currentFrameIndex{0}
     {
         recreateSwapchain();
         createCommandBuffers();
@@ -17,7 +17,8 @@ namespace YTVK
 
     void Renderer::createCommandBuffers()
     {
-        commandBuffers.resize(swapchain->imageCount());
+        commandBuffers.resize(SwapChain::MAX_FRAMES_IN_FLIGHT);
+
         VkCommandBufferAllocateInfo allocateInfo{};
         allocateInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
         allocateInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
@@ -59,12 +60,6 @@ namespace YTVK
             if (!oldSwapChain->compareSwapFormats(*swapchain.get()))
             {
                 throw std::runtime_error("Swap chain image or depth format has changed");
-            }
-
-            if (swapchain->imageCount() != commandBuffers.size())
-            {
-                freeCommandBuffers();
-                createCommandBuffers();
             }
         }
 
@@ -127,6 +122,7 @@ namespace YTVK
         }
 
         isFrameStarted = false;
+        currentFrameIndex = (currentFrameIndex + 1) % SwapChain::MAX_FRAMES_IN_FLIGHT;
     }
 
     bool Renderer::isFrameInProgress() const
@@ -136,8 +132,14 @@ namespace YTVK
 
     VkCommandBuffer Renderer::getCurrentCommandBuffer() const
     {
+        assert(isFrameStarted && "Cannot get command buffer when frame not in progres");
+        return commandBuffers[currentFrameIndex];
+    }
+
+    int Renderer::getCurrentFrameIndex() const
+    {
         assert(isFrameStarted && "Cannot get frame when frame not in progres");
-        return commandBuffers[currentImageIndex];
+        return currentFrameIndex;
     }
 
     void Renderer::beginSwapChainRenderPass(VkCommandBuffer commandBuffer)

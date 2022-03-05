@@ -22,6 +22,7 @@ namespace YTVK
         bool isFrameInProgress() const;
 
         VkCommandBuffer getCurrentCommandBuffer() const;
+        int getCurrentFrameIndex() const;
 
         void beginSwapChainRenderPass(VkCommandBuffer);
         void endSwapChainRenderPass(VkCommandBuffer);
@@ -32,6 +33,7 @@ namespace YTVK
         Device &device;
 
         uint32_t currentImageIndex;
+        uint32_t currentFrameIndex;
         bool isFrameStarted;
 
         std::unique_ptr<SwapChain> swapchain;
