@@ -15,7 +15,7 @@ namespace YTVK
     public:
         struct Vertex
         {
-            glm::vec2 position;
+            glm::vec3 position;
             glm::vec3 color;
             static std::vector<VkVertexInputBindingDescription> getBindDescriptions();
             static std::vector<VkVertexInputAttributeDescription> getAtributeDescriptions();
