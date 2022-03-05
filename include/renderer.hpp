@@ -24,6 +24,8 @@ namespace YTVK
         VkCommandBuffer getCurrentCommandBuffer() const;
         int getCurrentFrameIndex() const;
 
+        float getAspectRation() const;
+
         void beginSwapChainRenderPass(VkCommandBuffer);
         void endSwapChainRenderPass(VkCommandBuffer);
         VkRenderPass getSwapChainRenderPass() const;

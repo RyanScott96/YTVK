@@ -142,6 +142,11 @@ namespace YTVK
         return currentFrameIndex;
     }
 
+    float Renderer::getAspectRation() const
+    {
+        return swapchain->extentAspectRatio();
+    }
+
     void Renderer::beginSwapChainRenderPass(VkCommandBuffer commandBuffer)
     {
         assert(isFrameStarted && "Cannot begin swapchain render pass if frame is not in progress");
