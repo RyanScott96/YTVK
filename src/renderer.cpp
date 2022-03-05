@@ -53,7 +53,13 @@ namespace YTVK
         }
         else
         {
-            swapchain = std::make_unique<SwapChain>(device, extent, std::move(swapchain));
+            std::shared_ptr<SwapChain> oldSwapChain = std::move(swapchain);
+            swapchain = std::make_unique<SwapChain>(device, extent, oldSwapChain);
+
+            if (!oldSwapChain->compareSwapFormats(*swapchain.get())) {
+                throw std::runtime_error("Swap chain image or depth format has changed");
+            }
+
             if (swapchain->imageCount() != commandBuffers.size())
             {
                 freeCommandBuffers();
