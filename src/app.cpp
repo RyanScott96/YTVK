@@ -8,21 +8,26 @@
 
 #include <stdexcept>
 
-namespace YTVK{
-    App::App(){
+namespace YTVK
+{
+    App::App()
+    {
         loadGameObjects();
     }
 
     App::~App() {}
 
-    void App::run() {
+    void App::run()
+    {
         RenderSystem renderSystem{device, renderer.getSwapChainRenderPass()};
 
-        while(!window.shouldClose()) {
+        while (!window.shouldClose())
+        {
             // Check GLFW for events
             glfwPollEvents();
 
-            if (auto commandBuffer = renderer.beginFrame()) {
+            if (auto commandBuffer = renderer.beginFrame())
+            {
                 renderer.beginSwapChainRenderPass(commandBuffer);
                 renderSystem.renderGameObjects(commandBuffer, gameObjects);
                 renderer.endSwapChainRenderPass(commandBuffer);
@@ -33,7 +38,8 @@ namespace YTVK{
         vkDeviceWaitIdle(device.device());
     };
 
-    void App::loadGameObjects() {
+    void App::loadGameObjects()
+    {
         std::vector<Model::Vertex> vertices{};
         vertices = std::vector<Model::Vertex>{
             {{0.0f, -0.5f}, {1.0f, 0.0f, 0.0f}},

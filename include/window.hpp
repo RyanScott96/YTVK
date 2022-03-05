@@ -4,14 +4,16 @@
 #include <GLFW/glfw3.h>
 #include <string>
 
-namespace YTVK {
+namespace YTVK
+{
 
-    class Window {
+    class Window
+    {
     public:
         Window(int width, int height, std::string name);
         ~Window();
-        Window(const Window&) = delete;
-        Window &operator=(const Window&) = delete;
+        Window(const Window &) = delete;
+        Window &operator=(const Window &) = delete;
         bool shouldClose();
         bool wasWindowResized();
         void resetWindowResized();

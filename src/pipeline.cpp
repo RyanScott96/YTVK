@@ -6,7 +6,8 @@
 #include <stdexcept>
 #include <cassert>
 
-namespace YTVK {
+namespace YTVK
+{
     Pipeline::Pipeline(
         Device &device,
         const PipelineConfigInfo &configInfo,
@@ -16,17 +17,20 @@ namespace YTVK {
         createGraphicsPipeline(vertFilePath, fragFilePath, configInfo);
     }
 
-    Pipeline::~Pipeline() {
+    Pipeline::~Pipeline()
+    {
         vkDestroyShaderModule(device.device(), vertexShader, nullptr);
         vkDestroyShaderModule(device.device(), fragmentShader, nullptr);
         vkDestroyPipeline(device.device(), graphicsPipeline, nullptr);
     }
 
-    std::vector<char> Pipeline::readFile(const std::string &filePath) {
+    std::vector<char> Pipeline::readFile(const std::string &filePath)
+    {
 
         std::ifstream file(filePath, std::ios::ate | std::ios::binary);
-        
-        if(!file.is_open()) {
+
+        if (!file.is_open())
+        {
             throw std::runtime_error("failed to open file" + filePath);
         }
 
@@ -40,11 +44,13 @@ namespace YTVK {
         return buffer;
     };
 
-    void Pipeline::bind(VkCommandBuffer commandBuffer) {
+    void Pipeline::bind(VkCommandBuffer commandBuffer)
+    {
         vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, graphicsPipeline);
     };
 
-    void Pipeline::createGraphicsPipeline(const std::string &vertFilePath, const std::string &fragFilePath, const PipelineConfigInfo& configInfo) {
+    void Pipeline::createGraphicsPipeline(const std::string &vertFilePath, const std::string &fragFilePath, const PipelineConfigInfo &configInfo)
+    {
         auto vertCode = readFile(vertFilePath);
         auto fragCode = readFile(fragFilePath);
 
@@ -110,23 +116,27 @@ namespace YTVK {
         pipelineInfo.basePipelineIndex = -1;
         pipelineInfo.basePipelineHandle = VK_NULL_HANDLE;
 
-        if (vkCreateGraphicsPipelines(device.device(), VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &graphicsPipeline) != VK_SUCCESS) {
+        if (vkCreateGraphicsPipelines(device.device(), VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &graphicsPipeline) != VK_SUCCESS)
+        {
             throw std::runtime_error("failed to create graphics pipeline");
         }
     }
 
-    void Pipeline::createShaderModule(const std::vector<char>& code, VkShaderModule* shaderModule) {
+    void Pipeline::createShaderModule(const std::vector<char> &code, VkShaderModule *shaderModule)
+    {
         VkShaderModuleCreateInfo createInfo{};
         createInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
         createInfo.codeSize = code.size();
-        createInfo.pCode = reinterpret_cast<const uint32_t*>(code.data());
+        createInfo.pCode = reinterpret_cast<const uint32_t *>(code.data());
 
-        if (vkCreateShaderModule(device.device(), &createInfo, nullptr, shaderModule) != VK_SUCCESS) {
+        if (vkCreateShaderModule(device.device(), &createInfo, nullptr, shaderModule) != VK_SUCCESS)
+        {
             throw std::runtime_error("failed to create shader module");
         }
     }
 
-    void Pipeline::defaultPipelineConfigInfo(PipelineConfigInfo& configInfo) {
+    void Pipeline::defaultPipelineConfigInfo(PipelineConfigInfo &configInfo)
+    {
         configInfo.inputAssemblyInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
         configInfo.inputAssemblyInfo.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
         configInfo.inputAssemblyInfo.primitiveRestartEnable = VK_FALSE;

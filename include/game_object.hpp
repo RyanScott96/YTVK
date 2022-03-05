@@ -4,13 +4,16 @@
 
 #include <memory>
 
-namespace YTVK {
-    struct Transform2DComponent {
+namespace YTVK
+{
+    struct Transform2DComponent
+    {
         glm::vec2 translation{};
         glm::vec2 scale{1.0f, 1.0f};
         float rotation;
 
-        glm::mat2 mat2() { 
+        glm::mat2 mat2()
+        {
             const float sin = glm::sin(rotation);
             const float cos = glm::cos(rotation);
             glm::mat2 rotationMat{{cos, sin}, {-sin, cos}};
@@ -20,12 +23,13 @@ namespace YTVK {
         }
     };
 
-    class GameObject {
-        public:
-        GameObject(const GameObject&) = delete;
-        GameObject& operator=(const GameObject&) = delete;
-        GameObject(GameObject&&) = default;
-        GameObject& operator=(GameObject&&) = default;
+    class GameObject
+    {
+    public:
+        GameObject(const GameObject &) = delete;
+        GameObject &operator=(const GameObject &) = delete;
+        GameObject(GameObject &&) = default;
+        GameObject &operator=(GameObject &&) = default;
 
         using id_t = unsigned int;
         std::shared_ptr<Model> model{};
@@ -34,12 +38,13 @@ namespace YTVK {
 
         id_t getId() { return id; }
 
-        static GameObject createGameObject() {
+        static GameObject createGameObject()
+        {
             static id_t current_id = 0;
             return GameObject(current_id++);
         }
 
-        private:
+    private:
         GameObject(id_t obj_id) : id(obj_id){};
         id_t id;
     };

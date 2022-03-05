@@ -4,15 +4,18 @@
 #include <string>
 #include <vector>
 
-namespace YTVK {
+namespace YTVK
+{
 
-  struct SwapChainSupportDetails {
+  struct SwapChainSupportDetails
+  {
     VkSurfaceCapabilitiesKHR capabilities;
     std::vector<VkSurfaceFormatKHR> formats;
     std::vector<VkPresentModeKHR> presentModes;
   };
 
-  struct QueueFamilyIndices {
+  struct QueueFamilyIndices
+  {
     uint32_t graphicsFamily;
     uint32_t presentFamily;
     bool graphicsFamilyHasValue = false;
@@ -20,13 +23,14 @@ namespace YTVK {
     bool isComplete() { return graphicsFamilyHasValue && presentFamilyHasValue; }
   };
 
-  class Device {
+  class Device
+  {
   public:
-  #ifdef NDEBUG
+#ifdef NDEBUG
     const bool enableValidationLayers = false;
-  #else
+#else
     const bool enableValidationLayers = true;
-  #endif
+#endif
 
     Device(Window &window);
     ~Device();

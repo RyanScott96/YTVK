@@ -2,17 +2,21 @@
 #include <cassert>
 #include <cstring>
 
-namespace YTVK {
-    Model::Model(Device &device, const std::vector<Vertex> &vertices): device(device) {
+namespace YTVK
+{
+    Model::Model(Device &device, const std::vector<Vertex> &vertices) : device(device)
+    {
         createVertexBuffers(vertices);
     };
 
-    Model::~Model(){
+    Model::~Model()
+    {
         vkDestroyBuffer(device.device(), vertexBuffer, nullptr);
         vkFreeMemory(device.device(), bufferMemory, nullptr);
     };
 
-    void Model::createVertexBuffers(const std::vector<Vertex> &vertices) {
+    void Model::createVertexBuffers(const std::vector<Vertex> &vertices)
+    {
         vertexCount = static_cast<uint32_t>(vertices.size());
         assert(vertexCount >= 3 && "vertexCount must be at least 3");
         VkDeviceSize bufferSize = sizeof(vertices[0]) * vertexCount;
@@ -30,17 +34,20 @@ namespace YTVK {
         vkUnmapMemory(device.device(), bufferMemory);
     }
 
-    void Model::bind(VkCommandBuffer commandBuffer) {
+    void Model::bind(VkCommandBuffer commandBuffer)
+    {
         VkBuffer buffers[] = {vertexBuffer};
         VkDeviceSize offsets[] = {0};
         vkCmdBindVertexBuffers(commandBuffer, 0, 1, buffers, offsets);
     }
 
-    void Model::draw(VkCommandBuffer commandBuffer) {
+    void Model::draw(VkCommandBuffer commandBuffer)
+    {
         vkCmdDraw(commandBuffer, vertexCount, 1, 0, 0);
     }
 
-    std::vector<VkVertexInputBindingDescription> Model::Vertex::getBindDescriptions(){
+    std::vector<VkVertexInputBindingDescription> Model::Vertex::getBindDescriptions()
+    {
         std::vector<VkVertexInputBindingDescription> bindingDescriptions(1);
         bindingDescriptions[0].binding = 0;
         bindingDescriptions[0].stride = sizeof(Vertex);
@@ -48,7 +55,8 @@ namespace YTVK {
         return bindingDescriptions;
     };
 
-    std::vector<VkVertexInputAttributeDescription> Model::Vertex::getAtributeDescriptions(){
+    std::vector<VkVertexInputAttributeDescription> Model::Vertex::getAtributeDescriptions()
+    {
         std::vector<VkVertexInputAttributeDescription> attributeDescriptions(2);
         attributeDescriptions[0].binding = 0;
         attributeDescriptions[0].location = 0;

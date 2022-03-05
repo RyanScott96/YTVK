@@ -8,21 +8,23 @@
 #include <memory>
 #include <vector>
 
-namespace YTVK {
+namespace YTVK
+{
 
-    class App {
-        public:
+    class App
+    {
+    public:
         static constexpr int WIDTH = 800;
         static constexpr int HEIGHT = 600;
 
         App();
         ~App();
-        App(const App&) = delete;
-        App &operator=(const App&) = delete;
+        App(const App &) = delete;
+        App &operator=(const App &) = delete;
 
         void run();
 
-        private:
+    private:
         void loadGameObjects();
 
         Window window{WIDTH, HEIGHT, "Window!"};

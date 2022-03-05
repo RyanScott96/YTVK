@@ -12,7 +12,7 @@ namespace YTVK
     class Renderer
     {
     public:
-        Renderer(Window&, Device&);
+        Renderer(Window &, Device &);
         ~Renderer();
         Renderer(const Renderer &) = delete;
         Renderer &operator=(const Renderer &) = delete;
@@ -28,8 +28,8 @@ namespace YTVK
         VkRenderPass getSwapChainRenderPass() const;
 
     private:
-        Window& window;
-        Device& device;
+        Window &window;
+        Device &device;
 
         uint32_t currentImageIndex;
         bool isFrameStarted;

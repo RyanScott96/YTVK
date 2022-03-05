@@ -3,8 +3,10 @@
 #include <string>
 #include <vector>
 
-namespace YTVK {
-    struct PipelineConfigInfo {
+namespace YTVK
+{
+    struct PipelineConfigInfo
+    {
         VkPipelineViewportStateCreateInfo viewportInfo;
         VkPipelineInputAssemblyStateCreateInfo inputAssemblyInfo;
         VkPipelineRasterizationStateCreateInfo rasterizationInfo;
@@ -19,28 +21,29 @@ namespace YTVK {
         uint32_t subpass = 0;
     };
 
-    class Pipeline {
-        public:
-        Pipeline(   
+    class Pipeline
+    {
+    public:
+        Pipeline(
             Device &device,
-            const PipelineConfigInfo& configInfo,
+            const PipelineConfigInfo &configInfo,
             const std::string &vertFilePath,
             const std::string &fragFilePath);
 
         ~Pipeline();
-        Pipeline(const Pipeline&) = delete;
-        Pipeline &operator=(const Pipeline&) = delete;
+        Pipeline(const Pipeline &) = delete;
+        Pipeline &operator=(const Pipeline &) = delete;
 
-        static void defaultPipelineConfigInfo(PipelineConfigInfo&);
+        static void defaultPipelineConfigInfo(PipelineConfigInfo &);
 
         void bind(VkCommandBuffer commandBuffer);
 
-        private:
+    private:
         Device &device;
         VkPipeline graphicsPipeline;
         VkShaderModule vertexShader;
         VkShaderModule fragmentShader;
-        
+
         static std::vector<char> readFile(const std::string &filePath);
 
         void createGraphicsPipeline(

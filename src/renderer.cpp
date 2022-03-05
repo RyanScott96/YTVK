@@ -4,7 +4,7 @@
 
 namespace YTVK
 {
-    Renderer::Renderer(Window& window, Device& device): window{window}, device{device}, isFrameStarted{false}
+    Renderer::Renderer(Window &window, Device &device) : window{window}, device{device}, isFrameStarted{false}
     {
         recreateSwapchain();
         createCommandBuffers();
@@ -61,10 +61,11 @@ namespace YTVK
             }
         }
 
-        //TODO: something
+        // TODO: something
     }
 
-    VkCommandBuffer Renderer::beginFrame() {
+    VkCommandBuffer Renderer::beginFrame()
+    {
         assert(!isFrameStarted && "Cannot start frame while frame is already in progress");
 
         auto result = swapchain->acquireNextImage(&currentImageIndex);
@@ -95,7 +96,8 @@ namespace YTVK
         return commandBuffer;
     }
 
-    void Renderer::endFrame() {
+    void Renderer::endFrame()
+    {
         assert(isFrameStarted && "Cannot end frame unless frame is in progress");
 
         auto commandBuffer = getCurrentCommandBuffer();
@@ -120,16 +122,19 @@ namespace YTVK
         isFrameStarted = false;
     }
 
-    bool Renderer::isFrameInProgress() const {
+    bool Renderer::isFrameInProgress() const
+    {
         return isFrameStarted;
     }
 
-    VkCommandBuffer Renderer::getCurrentCommandBuffer() const {
+    VkCommandBuffer Renderer::getCurrentCommandBuffer() const
+    {
         assert(isFrameStarted && "Cannot get frame when frame not in progres");
         return commandBuffers[currentImageIndex];
     }
 
-    void Renderer::beginSwapChainRenderPass(VkCommandBuffer commandBuffer) {
+    void Renderer::beginSwapChainRenderPass(VkCommandBuffer commandBuffer)
+    {
         assert(isFrameStarted && "Cannot begin swapchain render pass if frame is not in progress");
         assert(commandBuffer == getCurrentCommandBuffer() && "Cannot begin render pass on a different frame");
 
@@ -164,13 +169,15 @@ namespace YTVK
         vkCmdSetScissor(commandBuffer, 0, 1, &scissor);
     }
 
-    void Renderer::endSwapChainRenderPass(VkCommandBuffer commandBuffer) {
+    void Renderer::endSwapChainRenderPass(VkCommandBuffer commandBuffer)
+    {
         assert(isFrameStarted && "Cannot end swapchain render pass if frame is not in progress");
         assert(commandBuffer == getCurrentCommandBuffer() && "Cannot end render pass on a different frame");
         vkCmdEndRenderPass(commandBuffer);
     }
 
-    VkRenderPass Renderer::getSwapChainRenderPass() const {
+    VkRenderPass Renderer::getSwapChainRenderPass() const
+    {
         return swapchain->getRenderPass();
     }
 }
