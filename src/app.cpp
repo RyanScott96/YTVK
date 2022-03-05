@@ -1,12 +1,14 @@
 #include "app.hpp"
 #include "render_system.hpp"
 #include "camera.hpp"
+#include "keyboard_movement_controller.hpp"
 
 #define GLM_FORCE_RADIANS
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE
 #include <glm/glm.hpp>
 #include <glm/gtc/constants.hpp>
 
+#include <chrono>
 #include <stdexcept>
 
 namespace YTVK
@@ -22,17 +24,26 @@ namespace YTVK
     {
         RenderSystem renderSystem{device, renderer.getSwapChainRenderPass()};
         Camera camera{};
-        // camera.setViewDirection(glm::vec3{0.0f}, glm::vec3{0.5f, 0.0f, 1.0f});
-        camera.setViewTarget(glm::vec3{-1.0f, -20.0f, 2.0f}, glm::vec3{0.0f, 0.0f, 2.5});
+
+        auto viewerObject = GameObject::createGameObject();
+        KeyboardMovementController cameraController{};
+
+        auto currentTime = std::chrono::high_resolution_clock::now();
 
         while (!window.shouldClose())
         {
             // Check GLFW for events
             glfwPollEvents();
 
+            auto newTime = std::chrono::high_resolution_clock::now();
+            float frameTime = std::chrono::duration<float, std::chrono::seconds::period>(newTime - currentTime).count();
+            currentTime = newTime;
+
+            cameraController.moveInPlaneXZ(window.getGLFWwindow(), frameTime, viewerObject);
+            camera.setViewYXZ(viewerObject.transform.translation, viewerObject.transform.rotation);
+
             float aspect = renderer.getAspectRation();
-            // camera.setOrthographicProjection(-aspect, aspect, -1, 1, -1, 1);
-            camera.setPerspectiveProjection(glm::radians(50.0f), aspect, 0.1f, 100.0f);
+            camera.setPerspectiveProjection(glm::radians(50.0f), aspect, 0.1f, 10.0f);
 
             if (auto commandBuffer = renderer.beginFrame())
             {

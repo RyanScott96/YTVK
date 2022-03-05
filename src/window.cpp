@@ -45,6 +45,11 @@ namespace YTVK
         return {static_cast<uint32_t>(width), static_cast<uint32_t>(height)};
     }
 
+    GLFWwindow* Window::getGLFWwindow() const
+    {
+        return window;
+    }
+
     void Window::initWindow()
     {
         // Initialize GLFW

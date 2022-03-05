@@ -19,6 +19,7 @@ namespace YTVK
         void resetWindowResized();
         void createWindowSurface(VkInstance instance, VkSurfaceKHR *surface);
         VkExtent2D getExtent();
+        GLFWwindow* getGLFWwindow() const;
 
     private:
         GLFWwindow *window;
