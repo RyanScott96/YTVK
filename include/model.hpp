@@ -21,7 +21,13 @@ namespace YTVK
             static std::vector<VkVertexInputAttributeDescription> getAtributeDescriptions();
         };
 
-        Model(Device &, const std::vector<Vertex> &);
+        struct Builder
+        {
+            std::vector<Vertex> vertices{};
+            std::vector<uint32_t> indices{};
+        };
+
+        Model(Device &, const Model::Builder &);
         ~Model();
         Model(const Model &) = delete;
         Model &operator=(const Model &) = delete;
@@ -31,10 +37,17 @@ namespace YTVK
 
     private:
         Device &device;
+
         VkBuffer vertexBuffer;
-        VkDeviceMemory bufferMemory;
+        VkDeviceMemory vertexBufferMemory;
         uint32_t vertexCount;
 
-        void createVertexBuffers(const std::vector<Vertex> &vertices);
+        bool hasIndexBuffer;
+        VkBuffer indexBuffer;
+        VkDeviceMemory indexBufferMemory;
+        uint32_t indexCount;
+
+        void createVertexBuffers(const std::vector<Vertex> &);
+        void createIndexBuffers(const std::vector<uint32_t> &);
     };
 };
