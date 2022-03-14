@@ -23,6 +23,8 @@ namespace YTVK
 
             static std::vector<VkVertexInputBindingDescription> getBindDescriptions();
             static std::vector<VkVertexInputAttributeDescription> getAtributeDescriptions();
+
+            bool operator==(const Vertex &) const;
         };
 
         struct Builder
@@ -58,4 +60,4 @@ namespace YTVK
         void createVertexBuffers(const std::vector<Vertex> &);
         void createIndexBuffers(const std::vector<uint32_t> &);
     };
-};
+}

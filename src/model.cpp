@@ -1,11 +1,30 @@
 #include "model.hpp"
+#include "utils.hpp"
 
 #define TINYOBJLOADER_IMPLEMENTATION
 #include <tiny_obj_loader.h>
 
+#define GLM_ENABLE_EXPERIMENTAL
+#include <glm/gtx/hash.hpp>
+
 #include <cassert>
 #include <cstring>
 #include <iostream>
+#include <unordered_map>
+
+namespace std
+{
+    template <>
+    struct hash<YTVK::Model::Vertex>
+    {
+        size_t operator()(YTVK::Model::Vertex const &vertex) const
+        {
+            size_t seed = 0;
+            YTVK::hashCombine(seed, vertex.position, vertex.color, vertex.normal, vertex.uv);
+            return seed;
+        }
+    };
+}
 
 namespace YTVK
 {
@@ -13,7 +32,7 @@ namespace YTVK
     {
         createVertexBuffers(builder.vertices);
         createIndexBuffers(builder.indices);
-    };
+    }
 
     Model::~Model()
     {
@@ -25,7 +44,7 @@ namespace YTVK
             vkDestroyBuffer(device.device(), indexBuffer, nullptr);
             vkFreeMemory(device.device(), indexBufferMemory, nullptr);
         }
-    };
+    }
 
     void Model::createVertexBuffers(const std::vector<Vertex> &vertices)
     {
@@ -121,6 +140,11 @@ namespace YTVK
         }
     }
 
+    bool Model::Vertex::operator==(const Model::Vertex &other) const
+    {
+        return position == other.position && color == other.color && normal == other.normal && uv == other.uv;
+    }
+
     std::vector<VkVertexInputBindingDescription> Model::Vertex::getBindDescriptions()
     {
         std::vector<VkVertexInputBindingDescription> bindingDescriptions(1);
@@ -128,7 +152,7 @@ namespace YTVK
         bindingDescriptions[0].stride = sizeof(Vertex);
         bindingDescriptions[0].inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
         return bindingDescriptions;
-    };
+    }
 
     std::vector<VkVertexInputAttributeDescription> Model::Vertex::getAtributeDescriptions()
     {
@@ -143,7 +167,7 @@ namespace YTVK
         attributeDescriptions[1].format = VK_FORMAT_R32G32B32_SFLOAT;
         attributeDescriptions[1].offset = offsetof(Vertex, color);
         return attributeDescriptions;
-    };
+    }
 
     std::unique_ptr<Model> Model::createModelFromFile(Device &device, const std::string &path)
     {
@@ -171,6 +195,7 @@ namespace YTVK
         vertices.clear();
         indices.clear();
 
+        std::unordered_map<Vertex, uint32_t> uniqueVertices{};
         for (const auto &shape : shapes)
         {
             for (const auto &index : shape.mesh.indices)
@@ -179,41 +204,47 @@ namespace YTVK
 
                 if (index.vertex_index >= 0)
                 {
-                    vertex.position = {
-                        attrib.vertices[3 * index.vertex_index + 0],
-                        attrib.vertices[3 * index.vertex_index + 1],
-                        attrib.vertices[3 * index.vertex_index + 2]};
+                    vertex.position =
+                        {
+                            attrib.vertices[3 * index.vertex_index + 0],
+                            attrib.vertices[3 * index.vertex_index + 1],
+                            attrib.vertices[3 * index.vertex_index + 2],
+                        };
 
-                    auto colorIndex = 3 * index.vertex_index + 2;
-                    if (colorIndex < attrib.colors.size())
-                    {
-                        vertex.color = {
-                            attrib.colors[colorIndex - 2],
-                            attrib.colors[colorIndex - 1],
-                            attrib.colors[colorIndex - 0]};
-                    }
-                    else
-                    {
-                        vertex.color = {1.0f, 1.0f, 1.0f};
-                    }
+                    vertex.color =
+                        {
+                            attrib.colors[3 * index.vertex_index + 0],
+                            attrib.colors[3 * index.vertex_index + 1],
+                            attrib.colors[3 * index.vertex_index + 2],
+                        };
                 }
 
                 if (index.normal_index >= 0)
                 {
-                    vertex.normal = {
-                        attrib.normals[3 * index.normal_index + 0],
-                        attrib.normals[3 * index.normal_index + 1],
-                        attrib.normals[3 * index.normal_index + 2]};
+                    vertex.normal =
+                        {
+                            attrib.normals[3 * index.normal_index + 0],
+                            attrib.normals[3 * index.normal_index + 1],
+                            attrib.normals[3 * index.normal_index + 2],
+                        };
                 }
 
                 if (index.texcoord_index >= 0)
                 {
-                    vertex.uv = {
-                        attrib.texcoords[2 * index.texcoord_index + 0],
-                        attrib.texcoords[2 * index.texcoord_index + 1]};
+                    vertex.uv =
+                        {
+                            attrib.texcoords[2 * index.texcoord_index + 0],
+                            attrib.texcoords[2 * index.texcoord_index + 1],
+                        };
                 }
 
-                vertices.push_back(vertex);
+                if (uniqueVertices.count(vertex) == 0)
+                {
+                    uniqueVertices[vertex] = static_cast<uint32_t>(vertices.size());
+                    vertices.push_back(vertex);
+                }
+
+                indices.push_back(uniqueVertices[vertex]);
             }
         }
     }

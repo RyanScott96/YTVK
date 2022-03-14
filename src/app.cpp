@@ -59,7 +59,7 @@ namespace YTVK
 
     void App::loadGameObjects()
     {
-        std::shared_ptr<Model> model = Model::createModelFromFile(device, "models/colored_cube.obj");
+        std::shared_ptr<Model> model = Model::createModelFromFile(device, "models/smooth_vase.obj");
 
         auto cube = GameObject::createGameObject();
         cube.model = model;
