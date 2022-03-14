@@ -13,7 +13,7 @@ namespace YTVK
     struct SimplePushConstantData
     {
         glm::mat4 transform{1.0f};
-        alignas(16) glm::vec3 color;
+        glm::mat4 normalMatrix{1.0f};
     };
 
     RenderSystem::RenderSystem(Device &device, VkRenderPass renderPass) : device{device}
@@ -76,8 +76,9 @@ namespace YTVK
         for (auto &object : gameObjects)
         {
             SimplePushConstantData push{};
-            push.color = object.color;
-            push.transform = projectionView * object.transform.mat4();
+            auto modelMatrix = object.transform.mat4();
+            push.transform = projectionView * modelMatrix;
+            push.normalMatrix = object.transform.normalMatrix();
 
             vkCmdPushConstants(
                 commandBuffer,

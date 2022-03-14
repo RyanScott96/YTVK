@@ -59,13 +59,20 @@ namespace YTVK
 
     void App::loadGameObjects()
     {
-        std::shared_ptr<Model> model = Model::createModelFromFile(device, "models/smooth_vase.obj");
+        std::shared_ptr<Model> flatVaseModel = Model::createModelFromFile(device, "models/flat_vase.obj");
 
-        auto cube = GameObject::createGameObject();
-        cube.model = model;
-        cube.transform.translation = {0.0f, 0.0f, 2.5f};
-        cube.transform.scale = {0.5f, 0.5f, 0.5f};
+        auto flatVaseObject = GameObject::createGameObject();
+        flatVaseObject.model = flatVaseModel;
+        flatVaseObject.transform.translation = {1.0f, 0.0f, 2.5f};
+        flatVaseObject.transform.scale = {0.5f, 0.25f, 0.5f};
 
-        gameObjects.push_back(std::move(cube));
+        std::shared_ptr<Model> smoothVaseModel = Model::createModelFromFile(device, "models/smooth_vase.obj");
+        auto smoothVaseObject = GameObject::createGameObject();
+        smoothVaseObject.model = smoothVaseModel;
+        smoothVaseObject.transform.translation = {-1.0f, 0.0f, 2.5f};
+        smoothVaseObject.transform.scale = {0.5f, 0.5f, 0.25f};
+
+        gameObjects.push_back(std::move(flatVaseObject));
+        gameObjects.push_back(std::move(smoothVaseObject));
     }
 }
