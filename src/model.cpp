@@ -188,9 +188,9 @@ namespace YTVK
                     if (colorIndex < attrib.colors.size())
                     {
                         vertex.color = {
-                            attrib.colors[3 * colorIndex - 2],
-                            attrib.colors[3 * colorIndex - 1],
-                            attrib.colors[3 * colorIndex - 0]};
+                            attrib.colors[colorIndex - 2],
+                            attrib.colors[colorIndex - 1],
+                            attrib.colors[colorIndex - 0]};
                     }
                     else
                     {
