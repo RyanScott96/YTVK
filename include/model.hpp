@@ -4,9 +4,10 @@
 
 #define GLM_FORCE_RADIANS
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE
-
 #include <glm/glm.hpp>
+
 #include <vector>
+#include <memory>
 
 namespace YTVK
 {
@@ -15,8 +16,11 @@ namespace YTVK
     public:
         struct Vertex
         {
-            glm::vec3 position;
-            glm::vec3 color;
+            glm::vec3 position{};
+            glm::vec3 color{};
+            glm::vec3 normal{};
+            glm::vec2 uv{};
+
             static std::vector<VkVertexInputBindingDescription> getBindDescriptions();
             static std::vector<VkVertexInputAttributeDescription> getAtributeDescriptions();
         };
@@ -25,6 +29,8 @@ namespace YTVK
         {
             std::vector<Vertex> vertices{};
             std::vector<uint32_t> indices{};
+
+            void loadModel(const std::string &);
         };
 
         Model(Device &, const Model::Builder &);
@@ -34,6 +40,8 @@ namespace YTVK
 
         void bind(VkCommandBuffer);
         void draw(VkCommandBuffer);
+
+        static std::unique_ptr<Model> createModelFromFile(Device&, const std::string &);
 
     private:
         Device &device;

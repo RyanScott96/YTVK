@@ -1,6 +1,11 @@
 #include "model.hpp"
+
+#define TINYOBJLOADER_IMPLEMENTATION
+#include <tiny_obj_loader.h>
+
 #include <cassert>
 #include <cstring>
+#include <iostream>
 
 namespace YTVK
 {
@@ -139,4 +144,77 @@ namespace YTVK
         attributeDescriptions[1].offset = offsetof(Vertex, color);
         return attributeDescriptions;
     };
+
+    std::unique_ptr<Model> Model::createModelFromFile(Device &device, const std::string &path)
+    {
+        Model::Builder builder{};
+        builder.loadModel(path);
+
+        std::cout << "Vertex Count: " << builder.vertices.size() << std::endl;
+
+        return std::make_unique<Model>(device, builder);
+    }
+
+    void Model::Builder::loadModel(const std::string &path)
+    {
+        tinyobj::attrib_t attrib;
+        std::vector<tinyobj::shape_t> shapes;
+        std::vector<tinyobj::material_t> materials;
+        std::string warn;
+        std::string error;
+
+        if (!tinyobj::LoadObj(&attrib, &shapes, &materials, &warn, &warn, path.c_str()))
+        {
+            throw std::runtime_error(warn + error);
+        }
+
+        vertices.clear();
+        indices.clear();
+
+        for (const auto &shape : shapes)
+        {
+            for (const auto &index : shape.mesh.indices)
+            {
+                Vertex vertex{};
+
+                if (index.vertex_index >= 0)
+                {
+                    vertex.position = {
+                        attrib.vertices[3 * index.vertex_index + 0],
+                        attrib.vertices[3 * index.vertex_index + 1],
+                        attrib.vertices[3 * index.vertex_index + 2]};
+
+                    auto colorIndex = 3 * index.vertex_index + 2;
+                    if (colorIndex < attrib.colors.size())
+                    {
+                        vertex.color = {
+                            attrib.colors[3 * colorIndex - 2],
+                            attrib.colors[3 * colorIndex - 1],
+                            attrib.colors[3 * colorIndex - 0]};
+                    }
+                    else
+                    {
+                        vertex.color = {1.0f, 1.0f, 1.0f};
+                    }
+                }
+
+                if (index.normal_index >= 0)
+                {
+                    vertex.normal = {
+                        attrib.normals[3 * index.normal_index + 0],
+                        attrib.normals[3 * index.normal_index + 1],
+                        attrib.normals[3 * index.normal_index + 2]};
+                }
+
+                if (index.texcoord_index >= 0)
+                {
+                    vertex.uv = {
+                        attrib.texcoords[2 * index.texcoord_index + 0],
+                        attrib.texcoords[2 * index.texcoord_index + 1]};
+                }
+
+                vertices.push_back(vertex);
+            }
+        }
+    }
 }
