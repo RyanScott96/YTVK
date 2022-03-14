@@ -2,6 +2,7 @@
 #include "render_system.hpp"
 #include "camera.hpp"
 #include "keyboard_movement_controller.hpp"
+#include "buffer.hpp"
 
 #define GLM_FORCE_RADIANS
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE
@@ -13,6 +14,12 @@
 
 namespace YTVK
 {
+    struct GlobalUBO
+    {
+        glm::mat4 projectionView{1.0f};
+        glm::vec3 lightDirection = glm::normalize(glm::vec3{1.0f, -3.0f, -1.0f});
+    };
+
     App::App()
     {
         loadGameObjects();
@@ -22,6 +29,18 @@ namespace YTVK
 
     void App::run()
     {
+        Buffer globalUBOBuffer
+        {
+            device,
+            sizeof(GlobalUBO),
+            SwapChain::MAX_FRAMES_IN_FLIGHT,
+            VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
+            VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT,
+            device.properties.limits.minUniformBufferOffsetAlignment
+        };
+
+        globalUBOBuffer.map();
+
         RenderSystem renderSystem{device, renderer.getSwapChainRenderPass()};
         Camera camera{};
 
@@ -47,6 +66,12 @@ namespace YTVK
 
             if (auto commandBuffer = renderer.beginFrame())
             {
+                int frameIndex = renderer.getCurrentFrameIndex();
+                GlobalUBO ubo{};
+                ubo.projectionView = camera.getProjection() * camera.getView();
+                globalUBOBuffer.writeToIndex(&ubo, frameIndex);
+                globalUBOBuffer.flushIndex(frameIndex);
+
                 renderer.beginSwapChainRenderPass(commandBuffer);
                 renderSystem.renderGameObjects(commandBuffer, gameObjects, camera);
                 renderer.endSwapChainRenderPass(commandBuffer);
