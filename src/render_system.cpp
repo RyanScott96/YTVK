@@ -67,11 +67,11 @@ namespace YTVK
             "shaders/simple.frag.spv");
     }
 
-    void RenderSystem::renderGameObjects(VkCommandBuffer commandBuffer, std::vector<GameObject> &gameObjects, const Camera &camera)
+    void RenderSystem::renderGameObjects(FrameInfo &frameInfo, std::vector<GameObject> &gameObjects)
     {
-        pipeline->bind(commandBuffer);
+        pipeline->bind(frameInfo.commandBuffer);
 
-        auto projectionView = camera.getProjection() * camera.getView();
+        auto projectionView = frameInfo.camera.getProjection() * frameInfo.camera.getView();
 
         for (auto &object : gameObjects)
         {
@@ -81,14 +81,14 @@ namespace YTVK
             push.normalMatrix = object.transform.normalMatrix();
 
             vkCmdPushConstants(
-                commandBuffer,
+                frameInfo.commandBuffer,
                 pipelineLayout,
                 VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT,
                 0,
                 sizeof(SimplePushConstantData),
                 &push);
-            object.model->bind(commandBuffer);
-            object.model->draw(commandBuffer);
+            object.model->bind(frameInfo.commandBuffer);
+            object.model->draw(frameInfo.commandBuffer);
         }
     }
 }

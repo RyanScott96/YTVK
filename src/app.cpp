@@ -67,13 +67,19 @@ namespace YTVK
             if (auto commandBuffer = renderer.beginFrame())
             {
                 int frameIndex = renderer.getCurrentFrameIndex();
+                FrameInfo frameInfo{
+                    frameIndex,
+                    frameTime,
+                    commandBuffer,
+                    camera,
+                };
                 GlobalUBO ubo{};
                 ubo.projectionView = camera.getProjection() * camera.getView();
                 globalUBOBuffer.writeToIndex(&ubo, frameIndex);
                 globalUBOBuffer.flushIndex(frameIndex);
 
                 renderer.beginSwapChainRenderPass(commandBuffer);
-                renderSystem.renderGameObjects(commandBuffer, gameObjects, camera);
+                renderSystem.renderGameObjects(frameInfo, gameObjects);
                 renderer.endSwapChainRenderPass(commandBuffer);
                 renderer.endFrame();
             }

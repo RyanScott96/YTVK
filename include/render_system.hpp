@@ -4,6 +4,7 @@
 #include "device.hpp"
 #include "game_object.hpp"
 #include "camera.hpp"
+#include "frame_info.hpp"
 
 #include <memory>
 #include <vector>
@@ -19,7 +20,7 @@ namespace YTVK
         RenderSystem(const RenderSystem &) = delete;
         RenderSystem &operator=(const RenderSystem &) = delete;
 
-        void renderGameObjects(VkCommandBuffer, std::vector<GameObject> &, const Camera &);
+        void renderGameObjects(FrameInfo &, std::vector<GameObject> &);
 
     private:
         void createPipelineLayout();
