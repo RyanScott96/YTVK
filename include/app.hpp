@@ -3,6 +3,7 @@
 #include "window.hpp"
 #include "device.hpp"
 #include "renderer.hpp"
+#include "descriptors.hpp"
 #include "game_object.hpp"
 
 #include <memory>
@@ -27,9 +28,10 @@ namespace YTVK
     private:
         void loadGameObjects();
 
-        Window window{WIDTH, HEIGHT, "Window!"};
-        Device device{window};
-        Renderer renderer{window, device};
+        Window window;
+        Device device;
+        Renderer renderer;
+        std::unique_ptr<DescriptorPool> globalPool;
         std::vector<GameObject> gameObjects;
     };
 };

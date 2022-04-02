@@ -15,7 +15,7 @@ namespace YTVK
     class RenderSystem
     {
     public:
-        RenderSystem(Device &, VkRenderPass);
+        RenderSystem(Device &, VkRenderPass, VkDescriptorSetLayout);
         ~RenderSystem();
         RenderSystem(const RenderSystem &) = delete;
         RenderSystem &operator=(const RenderSystem &) = delete;
@@ -23,7 +23,7 @@ namespace YTVK
         void renderGameObjects(FrameInfo &, std::vector<GameObject> &);
 
     private:
-        void createPipelineLayout();
+        void createPipelineLayout(VkDescriptorSetLayout);
         void createPipeline(VkRenderPass);
 
         Device &device;
